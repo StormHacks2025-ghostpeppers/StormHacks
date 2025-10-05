@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import '../styles/loginpage.css'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -8,95 +9,82 @@ function LoginPage() {
     password: ''
   })
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Handle login logic here
     console.log('Login attempted with:', formData)
   }
 
+  const handleSignUpClick = () => {
+    navigate('/signup')
+  }
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gray-100">
-      <div className="max-w-md w-full space-y-8">
-        <div className="flex items-center mb-6">
-          <button
-            onClick={() => navigate('/')}
-            className="text-lime-600 hover:text-lime-700 font-medium"
-          >
-            ← Back
-          </button>
-        </div>
-
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-black mb-8">
-            Access Your Account
-          </h2>
-        </div>
-
-        <div className="mb-8">
-          <img 
-            src="/assets/placeholder.png" 
-            alt="Open fridge" 
-            className="w-full h-48 object-cover rounded-lg bg-gray-200"
-          />
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-black mb-2">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-600 focus:border-transparent"
-              placeholder="Enter your email"
-            />
+    <div className="v1_6">
+      <div className="login-container">
+        <div className="fridge"></div>
+        <div className="v14_413">
+          <div className="v14_414">
+            <div className="v14_415">
+              <span className="v14_416">Sign In</span>
+            </div>
+            <div className="v14_417" onClick={handleSignUpClick}>
+              <span className="v14_418">Sign Up</span>
+            </div>
           </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-black mb-2">
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-600 focus:border-transparent"
-              placeholder="Enter your password"
-            />
+          <div className="v14_419">
+            <div className="v14_420">
+              <span className="v14_438">Access your account</span>
+              <span className="v14_436">Hippos can't make recipes alone; lend a hand (and your password)</span>
+            </div>
+            <form className="v14_422" onSubmit={handleSubmit}>
+              <div className="v14_423">
+                <div className="v14_424">
+                  <span className="v14_425">Email</span>
+                </div>
+                <div className="v14_426">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter your email"
+                    className="v14_427"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="v14_428">
+                <div className="v14_429">
+                  <span className="v14_430">Password</span>
+                </div>
+                <div className="v14_431">
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Enter your password"
+                    className="v14_432"
+                    required
+                  />
+                </div>
+              </div>
+              <button type="submit" className="v14_433">
+                <span className="v14_434">Log In</span>
+              </button>
+            </form>
           </div>
-
-          <button
-            type="submit"
-            className="w-full bg-lime-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-lime-700 transition-colors"
-          >
-            Login
-          </button>
-        </form>
-
-        <div className="text-center">
-          <button
-            onClick={() => navigate('/signup')}
-            className="text-lime-600 hover:text-lime-700 font-medium"
-          >
-            Create Account
-          </button>
         </div>
       </div>
+      <div className="name"></div>
     </div>
   )
 }

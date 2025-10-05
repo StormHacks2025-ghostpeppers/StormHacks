@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import fridgeImg from '../assets/fridge.png'
 import hippoAppleImg from '../assets/hippo_apple.png'
-import '../styles/main.css'
+import '../styles/homepage.css'
 
 function HomePage() {
   const navigate = useNavigate()
