@@ -347,95 +347,114 @@ export default function RecipesPage({ onNavigate }: RecipesPageProps) {
       });
     }, 200);
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    try {
+      // Get authentication token from localStorage or your auth context
+      const token = localStorage.getItem('authToken'); // Adjust based on your auth implementation
+      
+      if (!token) {
+        throw new Error('Authentication token not found. Please log in.');
+      }
 
-    clearInterval(progressInterval);
-    setLoadingProgress(100);
+      // Map questionnaire data to API format
+      const apiRequest = {
+        servings: parseInt(questionnaire.servings) || 2,
+        prioritize: !!questionnaire.useExpiring,
+        vegetarianOnly: !!questionnaire.vegetarian,
+        ...(questionnaire.cookTime && {
+          time: parseInt(questionnaire.cookTime.replace(/\D/g, '')) || 120
+        }),
+        ...(questionnaire.mealType && {
+          meal: questionnaire.mealType.toLowerCase()
+        }),
+        ...(questionnaire.cuisine && questionnaire.cuisine !== 'Any' && {
+          cuisine: questionnaire.cuisine
+        }),
+        ...(questionnaire.difficulty && {
+          difficulty: questionnaire.difficulty.toLowerCase()
+        }),
+        ...(questionnaire.allergies.length > 0 && {
+          foodsToAvoid: questionnaire.allergies
+        })
+      };
 
-    // Generate mock recipes based on questionnaire
-    const mockGeneratedRecipes: GeneratedRecipe[] = [
-      {
-        id: Date.now() + 1,
-        name: `${questionnaire.mealType} Delight`,
-        description: `A delicious ${questionnaire.mealType.toLowerCase()} recipe perfect for ${questionnaire.servings} people`,
-        cookTime: questionnaire.cookTime,
-        servings: parseInt(questionnaire.servings) || 2,
-        difficulty: questionnaire.difficulty,
-        rating: 4.5 + Math.random() * 0.5,
-        ingredients: ["eggs", "butter", "flour", "milk", "sugar", "tomatoes"],
-        instructions: [
-          "Prepare all ingredients",
-          "Mix wet ingredients together",
-          "Combine with dry ingredients",
-          "Cook according to method",
-          "Serve hot and enjoy",
-        ],
-        category: questionnaire.cuisine || "Custom",
-        tags: [questionnaire.mealType, questionnaire.difficulty, "Generated"],
-        isFavorite: false,
-        isGenerated: true,
-        generatedAt: new Date(),
-        ...checkCanMakeRecipe({
-          ingredients: ["eggs", "butter", "flour", "milk", "sugar", "tomatoes"],
-        } as Recipe),
-      },
-      {
-        id: Date.now() + 2,
-        name: `Quick ${questionnaire.cuisine} Bowl`,
-        description: `Fast and easy ${questionnaire.cuisine.toLowerCase()} inspired dish`,
-        cookTime: questionnaire.cookTime,
-        servings: parseInt(questionnaire.servings) || 2,
-        difficulty: questionnaire.difficulty,
-        rating: 4.3 + Math.random() * 0.7,
-        ingredients: ["chicken breast", "garlic", "onions", "olive oil", "tomatoes"],
-        instructions: [
-          "Heat oil in pan",
-          "Add aromatics and cook",
-          "Add protein and vegetables",
-          "Season and cook through",
-          "Plate and garnish",
-        ],
-        category: questionnaire.cuisine || "Custom",
-        tags: [questionnaire.mealType, "Quick", "Generated"],
-        isFavorite: false,
-        isGenerated: true,
-        generatedAt: new Date(),
-        ...checkCanMakeRecipe({
-          ingredients: ["chicken breast", "garlic", "onions", "olive oil", "tomatoes"],
-        } as Recipe),
-      },
-      {
-        id: Date.now() + 3,
-        name: `Healthy ${questionnaire.mealType} Option`,
-        description: `Nutritious and balanced meal for ${questionnaire.servings} servings`,
-        cookTime: questionnaire.cookTime,
-        servings: parseInt(questionnaire.servings) || 2,
-        difficulty: questionnaire.difficulty,
-        rating: 4.6 + Math.random() * 0.4,
-        ingredients: ["bell peppers", "cheese", "eggs", "milk", "flour"],
-        instructions: [
-          "Prep all vegetables",
-          "Create base mixture",
-          "Combine ingredients slowly",
-          "Cook until golden",
-          "Rest and serve",
-        ],
-        category: "Healthy",
-        tags: ["Healthy", questionnaire.mealType, "Generated"],
-        isFavorite: false,
-        isGenerated: true,
-        generatedAt: new Date(),
-        ...checkCanMakeRecipe({
-          ingredients: ["bell peppers", "cheese", "eggs", "milk", "flour"],
-        } as Recipe),
-      },
-    ];
+      // Call the AI recipe endpoint
+      const response = await fetch('http://localhost:3000/airecipe', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(apiRequest)
+      });
 
-    setGeneratedRecipes(mockGeneratedRecipes);
-    setRecipeHistory((prev) => [...prev, ...mockGeneratedRecipes]);
-    setIsGenerating(false);
-    setShowGeneratedRecipes(true);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      if (!data.success || !data.recipes || data.recipes.length === 0) {
+        throw new Error('No recipes were generated. Please try different preferences or add more ingredients to your inventory.');
+      }
+
+      // Convert API response to match your Recipe interface
+      const convertedRecipes: GeneratedRecipe[] = data.recipes.map((apiRecipe: any) => {
+        // Convert ingredients from API format to string array
+        const ingredientStrings = apiRecipe.ingredients.map((ing: any) => 
+          `${ing.quantity} ${ing.unit || ''} ${ing.name}`.trim()
+        );
+
+        return {
+          id: Date.now() + Math.random(), // Generate unique ID
+          name: apiRecipe.name,
+          description: apiRecipe.description,
+          cookTime: `${apiRecipe.estimated_time} mins`,
+          servings: apiRecipe.servings,
+          difficulty: apiRecipe.preferences?.difficulty ? 
+            apiRecipe.preferences.difficulty.charAt(0).toUpperCase() + apiRecipe.preferences.difficulty.slice(1) : 
+            'Medium',
+          rating: 4.5 + Math.random() * 0.5, // Generate random rating since API doesn't provide it
+          ingredients: ingredientStrings,
+          instructions: apiRecipe.instructions,
+          category: apiRecipe.preferences?.cuisine || questionnaire.cuisine || 'Generated',
+          tags: [
+            questionnaire.mealType || 'Generated',
+            apiRecipe.preferences?.difficulty || 'Medium',
+            'AI Generated'
+          ].filter(Boolean),
+          isFavorite: false,
+          isGenerated: true,
+          generatedAt: new Date(apiRecipe.generatedAt),
+          ...checkCanMakeRecipe({
+            ingredients: ingredientStrings
+          } as Recipe)
+        };
+      });
+
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
+
+      setGeneratedRecipes(convertedRecipes);
+      setRecipeHistory((prev) => [...prev, ...convertedRecipes]);
+      setIsGenerating(false);
+      setShowGeneratedRecipes(true);
+
+    } catch (error) {
+      clearInterval(progressInterval);
+      setIsGenerating(false);
+      setLoadingProgress(0);
+      
+      console.error('Error generating recipes:', error);
+      
+      // Show error message to user - you might want to add a toast notification or error state
+      alert(`Failed to generate recipes: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      
+      // Optionally fall back to mock data in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Falling back to mock data for development...');
+        // Your existing mock data generation code here as fallback
+      }
+    }
   };
 
   const saveGeneratedRecipe = (recipe: GeneratedRecipe) => {
@@ -908,7 +927,7 @@ export default function RecipesPage({ onNavigate }: RecipesPageProps) {
                     </div>
 
                     {/* Preferences */}
-                    <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="grid grid-cols-2 gap-3 pt-4">
                       <label className="flex items-center gap-2 text-sm">
                         <Switch
                           checked={!!questionnaire.useExpiring}
