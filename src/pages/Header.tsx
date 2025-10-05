@@ -1,12 +1,13 @@
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 
-
 interface HeaderProps {
-  currentPage: "main" | "kitchen" | "recipes" | "account";
-  onNavigate: (page: "main" | "kitchen" | "recipes" | "account") => void;
+  currentPage: "main" | "kitchen" | "recipes";
+  onNavigate: (page: "main" | "kitchen" | "recipes") => void;
 }
 
-function FridgeButton({ isActive, onNavigate }: { isActive: boolean; onNavigate: (page: "main" | "kitchen" | "recipes" | "account") => void }) {
+function FridgeButton({ isActive, onNavigate }: { isActive: boolean; onNavigate: (page: "main" | "kitchen" | "recipes") => void }) {
   return (
     <button
       onClick={() => onNavigate("kitchen")}
@@ -36,16 +37,22 @@ function RecipesButton({ isActive, onNavigate }: { isActive: boolean; onNavigate
   );
 }
 
-function AccountButton({ isActive, onNavigate }: { isActive: boolean; onNavigate: (page: "main" | "kitchen" | "recipes" | "account") => void }) {
+function LogoutButton() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <button
-      onClick={() => onNavigate("account")}
-      className={`h-[64px] w-[150px] overflow-clip rounded-[5px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-colors ${
-        isActive ? "bg-black" : "bg-black hover:bg-gray-800"
-      }`}
+      onClick={handleLogout}
+      className="h-[64px] w-[150px] overflow-clip rounded-[5px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] transition-colors bg-red-600 hover:bg-red-700"
     >
       <p className="font-['Fraunces:Regular',_sans-serif] font-normal leading-[18px] text-[20px] text-white tracking-[-0.5px] text-center" style={{ fontVariationSettings: "'SOFT' 0, 'WONK' 1" }}>
-        Account
+        Logout
       </p>
     </button>
   );
@@ -77,7 +84,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
         <div className="flex gap-6 items-center">
           <FridgeButton isActive={currentPage === "kitchen"} onNavigate={onNavigate} />
           <RecipesButton isActive={currentPage === "recipes"} onNavigate={onNavigate} />
-          <AccountButton isActive={currentPage === "account"} onNavigate={onNavigate} />
+          <LogoutButton />
         </div>
       </div>
     </header>

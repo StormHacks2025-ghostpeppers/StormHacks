@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import '../styles/loginpage.css'
 
 function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -26,7 +28,7 @@ function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/auth/login', { // Changed from 'http://127.0.0.1:3000/auth/login'
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,11 +45,11 @@ function LoginPage() {
         // Login successful
         console.log('Login successful:', data)
         
-        // Store the JWT token in localStorage
-        localStorage.setItem('authToken', data.token)
+        // Use the auth context to log in
+        login(data.token)
         
-        // Navigate to home page or dashboard
-        navigate('/')
+        // Navigate to main page
+        navigate('/mainpage')
       } else {
         // Handle login errors
         if (response.status === 401) {
