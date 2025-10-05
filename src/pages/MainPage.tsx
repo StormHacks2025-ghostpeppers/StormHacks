@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import fridgerator from "../assets/fridgerator.png";
 import pantry from "../assets/pantry.png";
 import box from "../assets/box.png";
@@ -11,6 +12,25 @@ type Page = "main" | "fridge" | "kitchen" | "recipes" | "account";
 /** onNavigate is now OPTIONAL */
 interface MainPageProps {
   onNavigate?: (page: Page) => void;
+}
+
+interface Ingredient {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  foodLocation: string;
+  expiryDate: string;
+  addedAt: string;
+}
+
+interface InventoryResponse {
+  success: boolean;
+  inventory: {
+    id: number;
+    ingredients: Ingredient[];
+    updatedAt: string;
+  };
 }
 
 /* -------------------- Hero -------------------- */
@@ -43,7 +63,7 @@ function HeroSection({ onNavigate }: { onNavigate: (page: Page) => void }) {
 }
 
 /* -------------------- Inventory Cards -------------------- */
-function InventorySection({ onNavigate }: { onNavigate: (page: Page) => void }) {
+function InventorySection({ onNavigate, totalItems }: { onNavigate: (page: Page) => void; totalItems: { fridge: number; pantry: number } }) {
   return (
     <section className="max-w-7xl mx-auto px-4 py-16">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -77,7 +97,7 @@ function InventorySection({ onNavigate }: { onNavigate: (page: Page) => void }) 
                   className="font-['Fraunces:Bold',_sans-serif] font-bold text-[#0d0d0d] text-[30px] leading-[36px]"
                   style={{ fontVariationSettings: "'SOFT' 0, 'WONK' 1" }}
                 >
-                  12
+                  {totalItems.fridge}
                 </p>
                 <p
                   className="ml-2 grow font-['Fraunces:Regular',_sans-serif] text-[#4a5565] text-[14px] leading-[15px]"
@@ -120,7 +140,7 @@ function InventorySection({ onNavigate }: { onNavigate: (page: Page) => void }) 
                   className="font-['Fraunces:Bold',_sans-serif] font-bold text-[#0d0d0d] text-[30px] leading-[36px]"
                   style={{ fontVariationSettings: "'SOFT' 0, 'WONK' 1" }}
                 >
-                  18
+                  {totalItems.pantry}
                 </p>
                 <p
                   className="ml-2 grow font-['Fraunces:Regular',_sans-serif] text-[#4a5565] text-[14px] leading-[15px]"
@@ -138,7 +158,37 @@ function InventorySection({ onNavigate }: { onNavigate: (page: Page) => void }) 
 }
 
 /* -------------------- Dashboard -------------------- */
-function DashboardSection() {
+function DashboardSection({ recentIngredients, expiringItems, totalInventoryCount }: { recentIngredients: Ingredient[]; expiringItems: Ingredient[]; totalInventoryCount: number }) {
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+  };
+
+  const getDaysUntilExpiry = (expiryDate: string) => {
+    const expiry = new Date(expiryDate);
+    const now = new Date();
+    const diffInDays = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffInDays < 0) return "Expired";
+    if (diffInDays === 0) return "Expires today";
+    if (diffInDays === 1) return "Expires tomorrow";
+    return `Expires in ${diffInDays} days`;
+  };
+
+  // Determine if well stocked or running low
+  const isWellStocked = totalInventoryCount >= 10;
+  const stockStatus = isWellStocked ? "Well Stocked!" : "Running Low!";
+  const stockMessage = isWellStocked 
+    ? `Your kitchen has ${totalInventoryCount} items - you're well prepared for cooking`
+    : `Your kitchen only has ${totalInventoryCount} items - time to restock!`;
+
   return (
     <section className="max-w-7xl mx-auto px-4 py-16">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -157,35 +207,32 @@ function DashboardSection() {
           </div>
 
           <div className="space-y-3">
-            {/* rows */}
-            <div className="bg-gray-50 rounded-[10px] p-3 flex justify-between items-center">
-              <div>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#101828]">Added Milk</p>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Fridge</p>
+            {recentIngredients.length === 0 ? (
+              <div className="bg-gray-50 rounded-[10px] p-3 text-center">
+                <p className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#4a5565]">No recent activity</p>
               </div>
-              <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Expires in 3 days</p>
-            </div>
-            <div className="bg-gray-50 rounded-[10px] p-3 flex justify-between items-center">
-              <div>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#101828]">Added Tomatoes</p>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Fridge</p>
-              </div>
-              <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Expires in 7 days</p>
-            </div>
-            <div className="bg-gray-50 rounded-[10px] p-3 flex justify-between items-center">
-              <div>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#101828]">Used Pasta</p>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Pantry</p>
-              </div>
-              <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Empty for 2 days</p>
-            </div>
-            <div className="bg-gray-50 rounded-[10px] p-3 flex justify-between items-center">
-              <div>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#101828]">Used Olive Oil</p>
-                <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Pantry</p>
-              </div>
-              <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">Expires in 200 days</p>
-            </div>
+            ) : (
+              recentIngredients.map((ingredient) => (
+                <div key={ingredient.id} className="bg-gray-50 rounded-[10px] p-3 flex justify-between items-center">
+                  <div>
+                    <p className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#101828]">
+                      Added {ingredient.name}
+                    </p>
+                    <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565] capitalize">
+                      {ingredient.foodLocation}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#4a5565]">
+                      {getDaysUntilExpiry(ingredient.expiryDate)}
+                    </p>
+                    <p className="font-['Fraunces:Regular',_sans-serif] text-[12px] text-[#6b7280]">
+                      {formatTimeAgo(ingredient.addedAt)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -204,22 +251,31 @@ function DashboardSection() {
           </div>
 
           <div className="space-y-4">
-            <div className="bg-orange-50 border border-[#ffd6a7] rounded-[10px] p-4">
-              <h4 className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#7e2a0c] mb-2">Items Expiring Soon</h4>
-              <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#9f2d00]">
-                3 items in your fridge will expire within the next 3 days
-              </p>
-            </div>
+            {/* Items Expiring Soon */}
+            {expiringItems.length > 0 && (
+              <div className="bg-orange-50 border border-[#ffd6a7] rounded-[10px] p-4">
+                <h4 className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#7e2a0c] mb-2">Items Expiring Soon</h4>
+                <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#9f2d00]">
+                  {expiringItems.length} item{expiringItems.length !== 1 ? 's' : ''} in your kitchen will expire within the next 3 days
+                </p>
+              </div>
+            )}
+            
+            {/* Kitchen Tip */}
             <div className="bg-blue-50 border border-[#bedbff] rounded-[10px] p-4">
               <h4 className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#1c398e] mb-2">Kitchen Tip</h4>
               <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#193cb8]">
                 Store potatoes in a cool, dark place away from onions to prevent sprouting
               </p>
             </div>
-            <div className="bg-green-50 border border-[#b9f8cf] rounded-[10px] p-4">
-              <h4 className="font-['Fraunces:Regular',_sans-serif] text-[16px] text-[#0d542b] mb-2">Well Stocked!</h4>
-              <p className="font-['Fraunces:Regular',_sans-serif] text-[14px] text-[#016630]">
-                Your pantry has 18 items - you're well prepared for cooking
+            
+            {/* Stock Status */}
+            <div className={`rounded-[10px] p-4 ${isWellStocked ? 'bg-green-50 border border-[#b9f8cf]' : 'bg-red-50 border border-[#fecaca]'}`}>
+              <h4 className={`font-['Fraunces:Regular',_sans-serif] text-[16px] mb-2 ${isWellStocked ? 'text-[#0d542b]' : 'text-[#7f1d1d]'}`}>
+                {stockStatus}
+              </h4>
+              <p className={`font-['Fraunces:Regular',_sans-serif] text-[14px] ${isWellStocked ? 'text-[#016630]' : 'text-[#991b1b]'}`}>
+                {stockMessage}
               </p>
             </div>
           </div>
@@ -232,6 +288,74 @@ function DashboardSection() {
 /* -------------------- Page (with internal nav fallback) -------------------- */
 export default function MainPage({ onNavigate }: MainPageProps) {
   const navigate = useNavigate();
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch inventory data
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch('http://localhost:3000/inventory', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data: InventoryResponse = await response.json();
+          setIngredients(data.inventory.ingredients);
+        } else {
+          throw new Error('Failed to fetch inventory');
+        }
+      } catch (error) {
+        console.error('Error fetching inventory:', error);
+        setError('Failed to load inventory data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInventory();
+  }, []);
+
+  // Calculate totals and recent items - Updated for better accuracy
+  const totalItems = {
+    fridge: ingredients.filter(item => {
+      const location = item.foodLocation.toLowerCase();
+      return location.includes('fridge') || location.includes('refrigerator');
+    }).length,
+    pantry: ingredients.filter(item => {
+      const location = item.foodLocation.toLowerCase();
+      return location.includes('pantry') || 
+             location.includes('spice') || 
+             location.includes('cabinet') ||
+             location.includes('cupboard') ||
+             location.includes('shelf') ||
+             location.includes('counter') ||
+             location.includes('wine cellar') ||
+             (!location.includes('fridge') && !location.includes('refrigerator') && !location.includes('freezer'));
+    }).length
+  };
+
+  // Total inventory count for stock status
+  const totalInventoryCount = ingredients.length;
+
+  // Get most recent 4 items (sorted by addedAt descending)
+  const recentIngredients = ingredients
+    .sort((a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime())
+    .slice(0, 4);
+
+  // Get items expiring within 3 days
+  const now = new Date();
+  const threeDaysFromNow = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000));
+  const expiringItems = ingredients.filter(item => {
+    const expiryDate = new Date(item.expiryDate);
+    return expiryDate <= threeDaysFromNow && expiryDate >= now;
+  });
 
   // fallback if onNavigate prop isn't provided
   const go = onNavigate ?? ((page: Page) => {
@@ -241,7 +365,7 @@ export default function MainPage({ onNavigate }: MainPageProps) {
         break;
       case "fridge":
       case "kitchen":
-        navigate("/inventory"); // change to your real route
+        navigate("/inventory");
         break;
       case "recipes":
         navigate("/recipes");
@@ -252,12 +376,57 @@ export default function MainPage({ onNavigate }: MainPageProps) {
     }
   });
 
+  // Add debug logging to verify counts (remove in production)
+  console.log('Ingredients:', ingredients);
+  console.log('Fridge items:', ingredients.filter(item => {
+    const location = item.foodLocation.toLowerCase();
+    return location.includes('fridge') || location.includes('refrigerator');
+  }));
+  console.log('Pantry items:', ingredients.filter(item => {
+    const location = item.foodLocation.toLowerCase();
+    return location.includes('pantry') || 
+           location.includes('spice') || 
+           location.includes('cabinet') ||
+           location.includes('cupboard') ||
+           location.includes('shelf') ||
+           location.includes('counter') ||
+           location.includes('wine cellar') ||
+           (!location.includes('fridge') && !location.includes('refrigerator') && !location.includes('freezer'));
+  }));
+  console.log('Total counts:', totalItems);
+
+  if (loading) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Header currentPage="main" onNavigate={go} />
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-xl">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white min-h-screen">
+        <Header currentPage="main" onNavigate={go} />
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-xl text-red-600">{error}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white min-h-screen">
       <Header currentPage="main" onNavigate={go} />
       <HeroSection onNavigate={go} />
-      <InventorySection onNavigate={go} />
-      <DashboardSection />
+      <InventorySection onNavigate={go} totalItems={totalItems} />
+      <DashboardSection 
+        recentIngredients={recentIngredients} 
+        expiringItems={expiringItems} 
+        totalInventoryCount={totalInventoryCount}
+      />
     </div>
   );
 }
