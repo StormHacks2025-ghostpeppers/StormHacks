@@ -37,11 +37,11 @@ function SignupPage() {
       <div className="login-container">
         <div className="openfridge"></div>
         <div className="v14_413">
-          <div className="v14_414">
-            <div className="v14_415">
+          <div className="v14_414 signup-active">
+            <div className="v14_415" onClick={handleSignInClick}>
               <span className="v14_416">Sign In</span>
             </div>
-            <div className="v14_417" onClick={handleSignInClick}>
+            <div className="v14_417">
               <span className="v14_418">Sign Up</span>
             </div>
           </div>

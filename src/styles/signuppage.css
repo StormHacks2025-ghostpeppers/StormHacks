@@ -67,10 +67,29 @@ body {
   margin-bottom: 60px;
 }
 
-.v14_415 {
+/* Orange slider background - starts on Sign In (left) */
+.v14_414::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
   width: calc(50% - 3px);
   height: 29px;
   background: rgba(198,32,3,1);
+  border-radius: 14px;
+  transition: left 0.3s ease;
+  z-index: 1;
+}
+
+/* Move slider to Sign Up (right) when signup is active */
+.v14_414.signup-active::before {
+  left: calc(50% + 0px);
+}
+
+.v14_415 {
+  width: calc(50% - 3px);
+  height: 29px;
+  background: transparent;
   padding: 4px 8px;
   opacity: 1;
   position: absolute;
@@ -81,15 +100,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.v14_416 {
-  color: rgba(255,255,255,1);
-  font-family: Fraunces, serif;
-  font-weight: Regular;
-  font-size: clamp(12px, 2vw, 14px);
-  opacity: 1;
-  text-align: center;
+  cursor: pointer;
+  z-index: 2;
 }
 
 .v14_417 {
@@ -107,20 +119,35 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.3s ease;
+  z-index: 2;
 }
 
-.v14_417:hover {
-  background: rgba(220,220,220,1);
-}
-
-.v14_418 {
-  color: rgba(10,10,10,1);
+/* Text styling */
+.v14_416, .v14_418 {
   font-family: Fraunces, serif;
   font-weight: Regular;
   font-size: clamp(12px, 2vw, 14px);
   opacity: 1;
   text-align: center;
+  transition: color 0.3s ease;
+}
+
+/* Default state: Sign In is selected (white text), Sign Up is not (dark text) */
+.v14_416 {
+  color: rgba(255,255,255,1);
+}
+
+.v14_418 {
+  color: rgba(10,10,10,1);
+}
+
+/* When signup is active: Sign In becomes dark, Sign Up becomes white */
+.v14_414.signup-active .v14_416 {
+  color: rgba(10,10,10,1);
+}
+
+.v14_414.signup-active .v14_418 {
+  color: rgba(255,255,255,1);
 }
 
 .v14_419 {
