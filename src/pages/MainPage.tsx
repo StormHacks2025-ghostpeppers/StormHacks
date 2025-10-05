@@ -241,7 +241,7 @@ export default function MainPage({ onNavigate }: MainPageProps) {
         break;
       case "fridge":
       case "kitchen":
-        navigate("/app/inventory"); // change to your real route
+        navigate("/inventory"); // change to your real route
         break;
       case "recipes":
         navigate("/recipes");
