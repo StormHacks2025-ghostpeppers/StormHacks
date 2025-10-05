@@ -43,8 +43,18 @@ const updateInventory = async (req, res) => {
         if (!Array.isArray(ingredients)) {
             return res.status(400).json({ 
                 message: 'Ingredients must be an array',
-                expected: 'Array of objects with name, quantity, unit, etc.'
+                expected: 'Array of objects with name, foodLocation, quantity, unit, etc.'
             });
+        }
+
+        // Validate that each ingredient has required fields
+        for (let i = 0; i < ingredients.length; i++) {
+            if (!ingredients[i].name || !ingredients[i].foodLocation) {
+                return res.status(400).json({ 
+                    message: `Ingredient at index ${i} must have both name and foodLocation`,
+                    expected: 'Each ingredient: { name: string, foodLocation: string, quantity?: number, unit?: string, expiryDate?: string }'
+                });
+            }
         }
 
         const inventory = await prisma.foodInventory.upsert({
@@ -79,10 +89,10 @@ const addIngredient = async (req, res) => {
 
     try {
         // Validate ingredient format
-        if (!ingredient || !ingredient.name) {
+        if (!ingredient || !ingredient.name || !ingredient.foodLocation) {
             return res.status(400).json({ 
-                message: 'Ingredient must have at least a name',
-                expected: '{ name: string, quantity?: number, unit?: string, expiryDate?: string }'
+                message: 'Ingredient must have at least a name and food location',
+                expected: '{ name: string, foodLocation: string, quantity?: number, unit?: string, expiryDate?: string }'
             });
         }
 
@@ -101,9 +111,10 @@ const addIngredient = async (req, res) => {
 
         const ingredients = JSON.parse(inventory.ingredients);
         
-        // Check if ingredient already exists
+        // Check if ingredient already exists (same name and location)
         const existingIndex = ingredients.findIndex(item => 
-            item.name.toLowerCase() === ingredient.name.toLowerCase()
+            item.name.toLowerCase() === ingredient.name.toLowerCase() &&
+            item.foodLocation.toLowerCase() === ingredient.foodLocation.toLowerCase()
         );
 
         if (existingIndex >= 0) {
@@ -116,6 +127,7 @@ const addIngredient = async (req, res) => {
                 name: ingredient.name,
                 quantity: ingredient.quantity || 1,
                 unit: ingredient.unit || 'piece',
+                foodLocation: ingredient.foodLocation,
                 expiryDate: ingredient.expiryDate || null,
                 addedAt: new Date().toISOString()
             });

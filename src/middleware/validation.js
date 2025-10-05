@@ -14,11 +14,13 @@ const ingredientValidation = [
     body('ingredient.name').notEmpty().withMessage('Ingredient name is required.'),
     body('ingredient.quantity').optional().isNumeric().withMessage('Quantity must be a number.'),
     body('ingredient.unit').optional().isString().withMessage('Unit must be a string.'),
+    body('ingredient.foodLocation').notEmpty().withMessage('Food location is required.'),
 ];
 
 const inventoryValidation = [
     body('ingredients').isArray().withMessage('Ingredients must be an array.'),
     body('ingredients.*.name').notEmpty().withMessage('Each ingredient must have a name.'),
+    body('ingredients.*.foodLocation').notEmpty().withMessage('Each ingredient must have a food location.'),
 ];
 
 const validate = (req, res, next) => {
