@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import MainPage from './pages/MainPage'
 import Inventory from './pages/Inventory'
+import RecipesPage from './pages/RecipesPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import './App.css'
 
@@ -28,6 +29,16 @@ function App() {
             <ProtectedRoute>
               <Inventory />
             </ProtectedRoute>
+          
+          } 
+        />
+        <Route 
+          path="/recipes" 
+          element={
+            <ProtectedRoute>
+              <RecipesPage />
+            </ProtectedRoute>
+          
           } 
         />
       </Routes>
