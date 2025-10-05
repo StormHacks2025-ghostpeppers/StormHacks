@@ -27,15 +27,15 @@ body {
   width: 100%;
   max-width: calc(500px + 479px + 80px); /* fridge width + form width + gap */
   height: 100%;
-  gap: 40px;
+  gap: clamp(20px, 5vw, 80px); /* Responsive gap that scales with screen size */
   margin: 0 auto;
   position: relative;
 }
 
-.fridge {
+.openfridge {
   width: min(500px, 45vw);
   height: min(700px, 80vh);
-  background: url("../assets/fridge.png");
+  background: url("../assets/openfridge.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
@@ -324,11 +324,11 @@ body {
 /* Media queries for responsive design */
 @media (max-width: 1200px) {
   .login-container {
-    max-width: calc(400px + 450px + 60px); /* Adjust for smaller screens */
-    gap: 30px;
+    max-width: calc(400px + 450px + 60px);
+    gap: clamp(18px, 4.5vw, 60px);
   }
   
-  .fridge {
+  .openfridge {
     width: min(400px, 40vw);
     height: min(600px, 70vh);
   }
@@ -341,10 +341,10 @@ body {
 @media (max-width: 1024px) {
   .login-container {
     max-width: calc(350px + 400px + 50px);
-    gap: 25px;
+    gap: clamp(16px, 4vw, 50px);
   }
-  
-  .fridge {
+
+  .openfridge {
     width: min(350px, 38vw);
     height: min(550px, 65vh);
   }
@@ -361,7 +361,7 @@ body {
   
   .login-container {
     flex-direction: column;
-    gap: 20px;
+    gap: clamp(15px, 3vw, 30px);
     max-width: 100%;
   }
   
@@ -387,6 +387,10 @@ body {
 @media (max-width: 480px) {
   .v1_6 {
     padding: 10px;
+  }
+  
+  .login-container {
+    gap: clamp(10px, 2.5vw, 20px);
   }
   
   .fridge {

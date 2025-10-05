@@ -29,7 +29,7 @@ function LoginPage() {
   return (
     <div className="v1_6">
       <div className="login-container">
-        <div className="fridge"></div>
+        <div className="openfridge"></div>
         <div className="v14_413">
           <div className="v14_414">
             <div className="v14_415">
