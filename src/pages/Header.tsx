@@ -83,7 +83,6 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
         {/* Navigation Buttons */}
         <div className="flex gap-6 items-center">
           <FridgeButton isActive={currentPage === "kitchen"} onNavigate={onNavigate} />
-          <RecipesButton isActive={currentPage === "recipes"} onNavigate={onNavigate} />
           <LogoutButton />
         </div>
       </div>
