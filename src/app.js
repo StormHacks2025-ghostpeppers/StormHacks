@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const inventoryRoutes = require('./routes/inventory');
+const aiRecipeRoutes = require('./routes/airecipe');
 const { PrismaClient } = require('@prisma/client');
 
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/inventory', inventoryRoutes);
+app.use('/airecipe', aiRecipeRoutes);
 
 const PORT = process.env.PORT || 3000;
 

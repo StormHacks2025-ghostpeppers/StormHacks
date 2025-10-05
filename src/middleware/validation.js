@@ -23,6 +23,18 @@ const inventoryValidation = [
     body('ingredients.*.foodLocation').notEmpty().withMessage('Each ingredient must have a food location.'),
 ];
 
+const aiRecipeValidation = [
+    body('servings').isInt({ min: 1, max: 20 }).withMessage('Servings must be a number between 1 and 20.'),
+    body('time').optional().isInt({ min: 5, max: 480 }).withMessage('Time must be a number between 5 and 480 minutes.'),
+    body('meal').optional().isIn(['breakfast', 'lunch', 'dinner', 'snack', 'dessert']).withMessage('Meal must be one of: breakfast, lunch, dinner, snack, dessert.'),
+    body('cuisine').optional().isString().trim().isLength({ min: 1 }).withMessage('Cuisine must be a non-empty string.'),
+    body('difficulty').optional().isIn(['easy', 'medium', 'hard']).withMessage('Difficulty must be one of: easy, medium, hard.'),
+    body('prioritize').isBoolean().withMessage('Prioritize must be a boolean value.'),
+    body('vegetarianOnly').isBoolean().withMessage('Vegetarian only must be a boolean value.'),
+    body('foodsToAvoid').optional().isArray().withMessage('Foods to avoid must be an array.'),
+    body('foodsToAvoid.*').optional().isString().trim().withMessage('Each food to avoid must be a string.'),
+];
+
 const validate = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -36,5 +48,6 @@ module.exports = {
     loginValidation,
     ingredientValidation,
     inventoryValidation,
+    aiRecipeValidation,
     validate,
 };
