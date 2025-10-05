@@ -21,7 +21,10 @@ export default {
           100: '#F7F7F7',
         },
       },
-      fontFamily: {},
+      
+      fontFamily: {
+        fraunces: ['"Fraunces"', 'serif'],
+      },
       spacing: {},
     },
   },

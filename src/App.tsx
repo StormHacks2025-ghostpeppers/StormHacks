@@ -2,6 +2,9 @@ import { Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import MainPage from './pages/MainPage'
+import Inventory from './pages/Inventory'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import './App.css'
 
 function App() {
@@ -11,6 +14,22 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route 
+          path="/mainpage" 
+          element={
+            <ProtectedRoute>
+              <MainPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/inventory" 
+          element={
+            <ProtectedRoute>
+              <Inventory />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
     </div>
   )

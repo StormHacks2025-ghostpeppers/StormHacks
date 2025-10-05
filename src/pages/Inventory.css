@@ -1,0 +1,109 @@
+.inventory-container {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  padding: 32px;
+  margin: 32px auto;
+  max-width: 1100px;
+}
+
+.inventory-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.inventory-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.inventory-subtitle {
+  font-size: 1.2rem;
+  color: #444;
+  margin-bottom: 24px;
+}
+
+.inventory-btn-green {
+  background: #93b60a;
+  color: #fff;
+  border-radius: 16px;
+  border: none;
+  padding: 16px 32px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: 'Fraunces', Georgia, serif;
+  box-shadow: 0 2px 8px rgba(147,182,10,0.08);
+  margin-left: auto;
+}
+
+.inventory-search {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  margin-bottom: 24px;
+}
+
+.inventory-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+}
+
+.inventory-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.inventory-card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: 'Fraunces', Georgia, serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inventory-card-location {
+  font-size: 1rem;
+  color: #888;
+}
+
+.inventory-card-quantity {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.inventory-card-expiry {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.expiry-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: #d32f2f;
+}
+
+.expiry-badge.green {
+  background: #93b60a;
+}
+
+.expiry-badge.black {
+  background: #222;
+}
