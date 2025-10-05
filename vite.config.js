@@ -6,6 +6,14 @@ export default defineConfig({
   server: {
     hmr: {
       overlay: false // Disable error overlay if needed
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
     }
   }
 })
